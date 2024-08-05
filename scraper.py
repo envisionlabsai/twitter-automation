@@ -11,8 +11,9 @@ def get_tweet_data(tweet_url):
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.binary_location = "/app/.apt/usr/bin/google-chrome-stable"
 
-    driver_service = Service(executable_path="/usr/bin/chromedriver")
+    driver_service = Service(executable_path="/app/.chromedriver/bin/chromedriver")
     driver = webdriver.Chrome(service=driver_service, options=chrome_options)
     
     driver.get(tweet_url)
