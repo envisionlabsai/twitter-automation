@@ -11,9 +11,9 @@ def get_tweet_data(tweet_url):
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.binary_location = "/app/.apt/usr/bin/google-chrome-stable"
+    chrome_options.binary_location = "/app/.apt/usr/bin/google-chrome"
 
-    driver_service = Service(executable_path="/app/.chromedriver/bin/chromedriver")
+    driver_service = Service(executable_path="/app/.apt/usr/bin/chromedriver")
     driver = webdriver.Chrome(service=driver_service, options=chrome_options)
     
     driver.get(tweet_url)
@@ -31,3 +31,4 @@ def get_tweet_data(tweet_url):
 if __name__ == "__main__":
     tweet_url = 'https://twitter.com/your_tweet_url'  # Replace with the actual tweet URL
     get_tweet_data(tweet_url)
+
