@@ -15,7 +15,7 @@ auth = tweepy.OAuth1UserHandler(
 api = tweepy.API(auth)
 
 # Replace 'tweet_id' with the actual tweet ID
-tweet_id = 'your_tweet_id_here'
+tweet_id = '1820534242490659169'
 tweet = api.get_status(tweet_id, tweet_mode="extended")
 
 print("Tweet Text:", tweet.full_text)
