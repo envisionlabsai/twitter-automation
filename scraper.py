@@ -1,34 +1,56 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.chrome.options import Options
-from bs4 import BeautifulSoup
+import snscrape.modules.twitter as sntwitter
+from playwright.sync_api import sync_playwright
+import pandas as pd
+import nltk
+from nltk.sentiment import SentimentIntensityAnalyzer
 
-def get_tweet_data(tweet_url):
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--disable-gpu")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-    chrome_options.add_argument("--remote-debugging-port=9222")
-    chrome_options.binary_location = "/app/.apt/usr/bin/google-chrome"
+nltk.download('vader_lexicon')
 
-    driver_service = ChromeService("/app/.chromedriver/bin/chromedriver")
-    driver = webdriver.Chrome(service=driver_service, options=chrome_options)
+def get_tweet_views(tweet_url):
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page()
+        page.goto(tweet_url)
+        page.wait_for_selector('article')
 
-    driver.get(tweet_url)
-    page_source = driver.page_source
-    driver.quit()
+        try:
+            views_element = page.query_selector('span:has-text("Views")')
+            views = views_element.inner_text() if views_element else "Not found"
+        except Exception as e:
+            views = "Not found"
 
-    soup = BeautifulSoup(page_source, "html.parser")
+        browser.close()
+        return views
 
-    try:
-        views = soup.find("span", {"data-testid": "viewCount"}).text
-        print(f"Views: {views}")
-    except AttributeError:
-        print("Views data not found.")
+def scrape_tweets(username, limit=5):
+    tweets = []
+    for tweet in sntwitter.TwitterSearchScraper(f'from:{username}').get_items():
+        if len(tweets) == limit:
+            break
+        tweets.append({
+            "date": tweet.date,
+            "content": tweet.content,
+            "url": tweet.url,
+            "likes": tweet.likeCount,
+            "retweets": tweet.retweetCount,
+            "replies": tweet.replyCount,
+        })
+    return tweets
+
+def analyze_sentiment(tweets):
+    sia = SentimentIntensityAnalyzer()
+    for tweet in tweets:
+        tweet['sentiment'] = sia.polarity_scores(tweet['content'])['compound']
+    return tweets
 
 if __name__ == "__main__":
-    tweet_url = "https://twitter.com/user/status/tweet_id"  # Replace with the actual tweet URL
-    get_tweet_data(tweet_url)
+    tweet_url = "https://twitter.com/username/status/tweet_id"  # Replace with actual tweet URL
+    views = get_tweet_views(tweet_url)
+    print(f"Views: {views}")
 
-
+    username = "twitter_username"  # Replace with the actual username
+    tweets = scrape_tweets(username)
+    tweets = analyze_sentiment(tweets)
+    df = pd.DataFrame(tweets)
+    print(df)
+    df.to_csv('tweets.csv', index=False)

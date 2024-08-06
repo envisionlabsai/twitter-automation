@@ -1,2 +1,1 @@
-worker: python main.py
-scraper: python scraper.py
+worker: python scraper.py
