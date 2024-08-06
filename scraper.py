@@ -10,9 +10,9 @@ def get_tweet_data(tweet_url):
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--remote-debugging-port=9222")
-    chrome_options.binary_location = "/app/.chrome-for-testing/chrome"
+    chrome_options.binary_location = "/app/.chromedriver/bin/chromedriver"
 
-    driver_service = ChromeService("/app/.chrome-for-testing/chromedriver-linux64/chromedriver")
+    driver_service = ChromeService("/app/.chromedriver/bin/chromedriver")
     driver = webdriver.Chrome(service=driver_service, options=chrome_options)
 
     driver.get(tweet_url)
