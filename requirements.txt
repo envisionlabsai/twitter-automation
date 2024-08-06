@@ -4,4 +4,4 @@ nltk==3.7
 playwright==1.45.1
 snscrape==0.4.3.20220106
 matplotlib==3.6.2
-greenlet==1.1.2
+greenlet==3.0.3
